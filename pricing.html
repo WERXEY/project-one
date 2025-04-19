@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Tarifs - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-5">Nos formules d'abonnement</h1>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card pricing-card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">Gratuit</h3>
+                    <div class="price">0€<span class="period">/mois</span></div>
+                    <p class="card-text">Parfait pour découvrir notre service</p>
+                    <ul class="feature-list">
+                        <li>3 clips courts par mois</li>
+                        <li>Qualité standard</li>
+                        <li>Pas de clips longs</li>
+                        <li>Filigrane sur les vidéos</li>
+                        <li>Support par email</li>
+                    </ul>
+                    <div class="d-grid">
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary">S'inscrire gratuitement</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card pricing-card h-100 border-primary">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="mb-0">Le plus populaire</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Premium</h3>
+                    <div class="price">9,99€<span class="period">/mois</span></div>
+                    <p class="card-text">Pour les créateurs de contenu réguliers</p>
+                    <ul class="feature-list">
+                        <li>20 clips par mois</li>
+                        <li>Clips courts et longs</li>
+                        <li>Haute qualité</li>
+                        <li>Sans filigrane</li>
+                        <li>Transitions personnalisées</li>
+                        <li>Support prioritaire</li>
+                    </ul>
+                    <div class="d-grid">
+                        <a href="{{ url_for('register', plan='premium') }}" class="btn btn-primary">Choisir Premium</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card pricing-card h-100">
+                <div class="card-body">
+                    <h3 class="card-title">Pro</h3>
+                    <div class="price">24,99€<span class="period">/mois</span></div>
+                    <p class="card-text">Pour les professionnels et les entreprises</p>
+                    <ul class="feature-list">
+                        <li>Clips illimités</li>
+                        <li>Qualité maximale</li>
+                        <li>Clips courts et longs</li>
+                        <li>Sans filigrane</li>
+                        <li>Transitions personnalisées</li>
+                        <li>Ajout de logo personnalisé</li>
+                        <li>API dédiée</li>
+                        <li>Support 24/7</li>
+                    </ul>
+                    <div class="d-grid">
+                        <a href="{{ url_for('register', plan='pro') }}" class="btn btn-outline-primary">Choisir Pro</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-5">
+        <h2 class="text-center mb-4">Questions fréquentes</h2>
+        
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Puis-je changer de formule à tout moment ?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Oui, vous pouvez passer d'une formule à une autre à tout moment. Si vous passez à une formule supérieure, le changement est immédiat. Si vous passez à une formule inférieure, le changement prendra effet à la fin de votre période de facturation en cours.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Comment fonctionne la limite de clips par mois ?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        La limite de clips est réinitialisée au début de chaque période de facturation. Les clips non utilisés ne sont pas reportés au mois suivant. Pour la formule Pro, il n'y a aucune limite sur le nombre de clips que vous pouvez générer.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Puis-je annuler mon abonnement à tout moment ?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Oui, vous pouvez annuler votre abonnement à tout moment. Votre abonnement restera actif jusqu'à la fin de la période de facturation en cours, puis passera automatiquement à la formule gratuite.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Quels moyens de paiement acceptez-vous ?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Nous acceptons les cartes de crédit (Visa, Mastercard, American Express), PayPal, et les virements bancaires pour les abonnements annuels Pro.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

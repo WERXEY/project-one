@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Paiement - Générateur de clips "Best Of"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .plan-summary {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .plan-price {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .plan-period {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .payment-form {
+        margin-top: 30px;
+    }
+    
+    #card-element {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+    
+    #card-errors {
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+    
+    .payment-button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+    }
+    
+    .secure-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        color: #6c757d;
+    }
+    
+    .secure-badge i {
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container checkout-container">
+    <h1 class="mb-4">Finaliser votre abonnement</h1>
+    
+    <div class="plan-summary">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="plan-name">{{ stripe_plan.name }}</div>
+                <div class="plan-price">{{ stripe_plan.price / 100 }}€<span class="plan-period">/mois</span></div>
+                <p>Abonnement mensuel, annulable à tout moment</p>
+            </div>
+            <div class="col-md-6">
+                <h5>Ce que vous obtenez :</h5>
+                <ul>
+                    {% if plan == 'premium' %}
+                        <li>20 clips par mois</li>
+                        <li>Clips courts et longs</li>
+                        <li>Haute qualité (1080p)</li>
+                        <li>Sans filigrane</li>
+                        <li>Transitions personnalisées</li>
+                    {% elif plan == 'pro' %}
+                        <li>Clips illimités</li>
+                        <li>Qualité maximale (4K)</li>
+                        <li>Clips courts et longs</li>
+                        <li>Sans filigrane</li>
+                        <li>Logo personnalisé</li>
+                        <li>API dédiée</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="payment-form">
+        <h3>Informations de paiement</h3>
+        <p>Votre carte sera débitée immédiatement. Vous pouvez annuler votre abonnement à tout moment.</p>
+        
+        <form id="payment-form">
+            <input type="hidden" name="plan" value="{{ plan }}">
+            
+            <div id="card-element">
+                <!-- Stripe Card Element will be inserted here -->
+            </div>
+            
+            <div id="card-errors" role="alert"></div>
+            
+            <button id="submit-button" class="btn btn-primary payment-button">
+                Payer {{ stripe_plan.price / 100 }}€
+            </button>
+        </form>
+        
+        <div class="secure-badge">
+            <i class="bi bi-lock-fill"></i>
+            <span>Paiement sécurisé par Stripe</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser Stripe
+        var stripe = Stripe('{{ stripe_public_key }}');
+        var elements = stripe.elements();
+        
+        // Créer l'élément de carte
+        var card = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#dc3545',
+                    iconColor: '#dc3545'
+                }
+            }
+        });
+        
+        // Monter l'élément de carte dans le DOM
+        card.mount('#card-element');
+        
+        // Gérer les erreurs de validation en temps réel
+        card.addEventListener('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Gérer la soumission du formulaire
+        var form = document.getElementById('payment-form');
+        var submitButton = document.getElementById('submit-button');
+        
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Désactiver le bouton pendant le traitement
+            submitButton.disabled = true;
+            submitButton.textContent = 'Traitement en cours...';
+            
+            // Créer une session de paiement côté serveur
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'plan': document.querySelector('input[name="plan"]').value
+                })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(session) {
+                if (session.error) {
+                    // Afficher l'erreur
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = session.error;
+                    
+                    // Réactiver le bouton
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Payer {{ stripe_plan.price / 100 }}€';
+                } else {
+                    // Rediriger vers Checkout
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                }
+            })
+            .then(function(result) {
+                if (result && result.error) {
+                    // Afficher l'erreur de Stripe Checkout
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                    
+                    // Réactiver le bouton
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Payer {{ stripe_plan.price / 100 }}€';
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                
+                // Afficher l'erreur
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+                
+                // Réactiver le bouton
+                submitButton.disabled = false;
+                submitButton.textContent = 'Payer {{ stripe_plan.price / 100 }}€';
+            });
+        });
+    });
+</script>
+{% endblock %}

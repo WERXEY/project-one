@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="form-container">
+                <h2 class="text-center mb-4">Créer un compte</h2>
+                
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+                
+                <form method="post" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mot de passe</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Le mot de passe doit contenir au moins 8 caractères, incluant une majuscule, une minuscule et un chiffre.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Formule d'abonnement</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="plan" id="plan-free" value="free" checked>
+                            <label class="form-check-label" for="plan-free">
+                                Gratuit
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="plan" id="plan-premium" value="premium">
+                            <label class="form-check-label" for="plan-premium">
+                                Premium (9,99€/mois)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="plan" id="plan-pro" value="pro">
+                            <label class="form-check-label" for="plan-pro">
+                                Pro (24,99€/mois)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">J'accepte les <a href="{{ url_for('terms') }}">conditions d'utilisation</a> et la <a href="{{ url_for('privacy') }}">politique de confidentialité</a></label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                    </div>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p>Vous avez déjà un compte ?</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Se connecter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

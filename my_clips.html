@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Clips - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Mes Clips</h1>
+    
+    {% if clips %}
+        <div class="row">
+            {% for clip in clips %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="clip-container">
+                            <img src="{{ clip.thumbnail }}" alt="{{ clip.title }}" class="clip-thumbnail">
+                            <div class="clip-duration">{{ clip.duration // 60 }}:{{ '%02d' % (clip.duration % 60) }}</div>
+                        </div>
+                        <div class="clip-info">
+                            <h5 class="clip-title">{{ clip.title }}</h5>
+                            <p class="clip-channel">{{ clip.channel }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-{{ 'success' if clip.status == 'completed' else 'warning' if clip.status == 'processing' else 'danger' }}">
+                                    {{ clip.status }}
+                                </span>
+                                <div>
+                                    {% if clip.status == 'completed' %}
+                                        <a href="{{ url_for('view_clip', clip_id=clip.id) }}" class="btn btn-sm btn-primary">Voir</a>
+                                        <a href="{{ url_for('download_clip', clip_id=clip.id) }}" class="btn btn-sm btn-outline-primary">Télécharger</a>
+                                    {% elif clip.status == 'processing' %}
+                                        <a href="{{ url_for('clip_status', clip_id=clip.id) }}" class="btn btn-sm btn-primary">Statut</a>
+                                    {% else %}
+                                        <a href="{{ url_for('clip_status', clip_id=clip.id) }}" class="btn btn-sm btn-danger">Erreur</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4 class="alert-heading">Aucun clip trouvé</h4>
+            <p>Vous n'avez pas encore créé de clips. Commencez dès maintenant !</p>
+            <hr>
+            <div class="text-center">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Créer mon premier clip</a>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <h3>Statistiques</h3>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ clips|length }}</h5>
+                        <p class="card-text">Clips générés</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ clips|selectattr('status', 'equalto', 'completed')|list|length }}</h5>
+                        <p class="card-text">Clips terminés</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ clips|selectattr('mode', 'equalto', 'short')|list|length }}</h5>
+                        <p class="card-text">Clips courts</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ clips|selectattr('mode', 'equalto', 'long')|list|length }}</h5>
+                        <p class="card-text">Clips longs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

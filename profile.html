@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Mon profil</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Nom :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ current_user.name }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Email :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ current_user.email }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Formule :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {% if current_user.plan == 'free' %}
+                                <span class="badge bg-secondary">Gratuit</span>
+                            {% elif current_user.plan == 'premium' %}
+                                <span class="badge bg-primary">Premium</span>
+                            {% elif current_user.plan == 'pro' %}
+                                <span class="badge bg-success">Pro</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Clips générés ce mois-ci :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ current_user.clips_generated_this_month }} / 
+                            {% if current_user.plan == 'pro' %}
+                                <span>Illimité</span>
+                            {% else %}
+                                <span>{{ current_user.get_clip_limit() }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Date d'inscription :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ current_user.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Dernière connexion :</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ current_user.last_login.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary">Changer mon mot de passe</a>
+                        <a href="{{ url_for('api.pricing') }}" class="btn btn-primary">Gérer mon abonnement</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

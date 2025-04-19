@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Visualisation du clip - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Votre clip "Best Of"</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ clip.title }}</h5>
+            <p class="card-text">Chaîne: {{ clip.channel }}</p>
+            
+            <div class="ratio ratio-16x9 mb-3">
+                <video controls>
+                    <source src="{{ url_for('download_clip', clip_id=clip.id) }}" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="badge bg-primary">{{ 'Court' if clip.mode == 'short' else 'Long' }}</span>
+                    <span class="badge bg-secondary">{{ 'Avec transitions' if clip.transitions else 'Sans transitions' }}</span>
+                </div>
+                <div>
+                    <a href="{{ url_for('download_clip', clip_id=clip.id) }}" class="btn btn-primary">Télécharger</a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">Créer un nouveau clip</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Informations sur la vidéo originale</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="{{ clip.thumbnail }}" alt="{{ clip.title }}" class="img-fluid rounded">
+                </div>
+                <div class="col-md-8">
+                    <h5>{{ clip.title }}</h5>
+                    <p>Chaîne: {{ clip.channel }}</p>
+                    <p>Durée: {{ clip.duration // 60 }}:{{ '%02d' % (clip.duration % 60) }}</p>
+                    <p>URL: <a href="{{ clip.youtube_url }}" target="_blank">{{ clip.youtube_url }}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <h3>Partager votre clip</h3>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="shareOnFacebook()">
+                Facebook
+            </button>
+            <button class="btn btn-outline-info" onclick="shareOnTwitter()">
+                Twitter
+            </button>
+            <button class="btn btn-outline-danger" onclick="copyLink()">
+                Copier le lien
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function shareOnFacebook() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent("Regardez ce clip 'Best Of' que j'ai créé !");
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank');
+    }
+    
+    function shareOnTwitter() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent("Regardez ce clip 'Best Of' que j'ai créé avec le Générateur de clips !");
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    }
+    
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Lien copié dans le presse-papiers !');
+        });
+    }
+</script>
+{% endblock %}

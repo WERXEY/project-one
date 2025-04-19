@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Statut du clip - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Statut de votre clip</h1>
+    
+    <div id="clip-status-container" data-clip-id="{{ clip.id }}">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ clip.title }}</h5>
+                <p class="card-text">Chaîne: {{ clip.channel }}</p>
+                <p class="card-text">Mode: {{ 'Court (30-60s)' if clip.mode == 'short' else 'Long (20% de la durée)' }}</p>
+                <p class="card-text">Transitions: {{ 'Oui' if clip.transitions else 'Non' }}</p>
+                <p class="card-text">Statut: <span id="clip-status" class="badge bg-primary">{{ clip.status }}</span></p>
+                
+                <div id="clip-processing-container" class="{{ 'd-none' if clip.status == 'completed' or clip.status == 'error' }}">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                    </div>
+                    <p class="text-center">Traitement en cours, veuillez patienter...</p>
+                </div>
+                
+                <div id="clip-ready-container" class="{{ '' if clip.status == 'completed' else 'd-none' }}">
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading">Clip généré avec succès!</h5>
+                        <p>Votre clip est prêt à être téléchargé et partagé.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('download_clip', clip_id=clip.id) }}" class="btn btn-primary">Télécharger le clip</a>
+                        <a href="{{ url_for('view_clip', clip_id=clip.id) }}" class="btn btn-secondary">Visualiser le clip</a>
+                    </div>
+                </div>
+                
+                <div id="clip-error-container" class="{{ '' if clip.status == 'error' else 'd-none' }}">
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">Une erreur est survenue</h5>
+                        <p id="clip-error-message">{{ clip.error }}</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">Réessayer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Informations sur la vidéo originale</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="{{ clip.thumbnail }}" alt="{{ clip.title }}" class="img-fluid rounded">
+                </div>
+                <div class="col-md-8">
+                    <h5>{{ clip.title }}</h5>
+                    <p>Chaîne: {{ clip.channel }}</p>
+                    <p>Durée: {{ clip.duration // 60 }}:{{ '%02d' % (clip.duration % 60) }}</p>
+                    <p>URL: <a href="{{ clip.youtube_url }}" target="_blank">{{ clip.youtube_url }}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Le code JavaScript pour mettre à jour le statut est déjà dans main.js
+</script>
+{% endblock %}

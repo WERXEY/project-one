@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Gérer mon abonnement - Générateur de clips "Best Of"{% endblock %}
+
+{% block extra_css %}
+<style>
+    .plan-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .plan-card.active {
+        border: 2px solid #0d6efd;
+    }
+    
+    .plan-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .plan-price {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .plan-period {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .plan-features {
+        padding: 20px;
+    }
+    
+    .plan-feature {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .plan-feature i {
+        margin-right: 10px;
+    }
+    
+    .plan-footer {
+        padding: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .usage-bar {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #e9ecef;
+        margin-bottom: 5px;
+    }
+    
+    .usage-progress {
+        height: 100%;
+        border-radius: 5px;
+        background-color: #0d6efd;
+    }
+    
+    .usage-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .subscription-info {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Gérer mon abonnement</h1>
+    
+    <div class="subscription-info">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Votre plan actuel</h4>
+                <p>
+                    {% if current_user.plan == 'free' %}
+                        <span class="badge bg-secondary">Gratuit</span>
+                    {% elif current_user.plan == 'premium' %}
+                        <span class="badge bg-primary">Premium</span>
+                    {% elif current_user.plan == 'pro' %}
+                        <span class="badge bg-success">Pro</span>
+                    {% endif %}
+                </p>
+                
+                {% if current_user.plan != 'free' %}
+                    <p>
+                        {% if current_user.is_subscription_active() %}
+                            <span class="text-success">Abonnement actif</span>
+                            {% if current_user.days_until_renewal() > 0 %}
+                                <br>Renouvellement dans {{ current_user.days_until_renewal() }} jour(s)
+                            {% endif %}
+                        {% else %}
+                            <span class="text-danger">Abonnement expiré</span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Utilisation ce mois-ci</h4>
+                <div class="usage-bar">
+                    {% if current_user.plan == 'pro' %}
+                        <div class="usage-progress" style="width: 0%"></div>
+                    {% else %}
+                        {% set usage_percent = (current_user.clips_generated_this_month / current_user.get_clip_limit() * 100) if current_user.get_clip_limit() > 0 else 0 %}
+                        <div class="usage-progress" style="width: {{ usage_percent }}%"></div>
+                    {% endif %}
+                </div>
+                <p class="usage-text">
+                    {% if current_user.plan == 'pro' %}
+                        {{ current_user.clips_generated_this_month }} clips générés (illimité)
+                    {% else %}
+                        {{ current_user.clips_generated_this_month }} / {{ current_user.get_clip_limit() }} clips générés
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <h2 class="mb-4">Choisir un plan</h2>
+    
+    <div class="row">
+        <!-- Plan Gratuit -->
+        <div class="col-md-4 mb-4">
+            <div class="plan-card h-100 {% if current_user.plan == 'free' %}active{% endif %}">
+                <div class="plan-header text-center">
+                    <h3>Gratuit</h3>
+                    <div class="plan-price">0€</div>
+                    <div class="plan-period">par mois</div>
+                </div>
+                
+                <div class="plan-features">
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>3 clips courts par mois</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Qualité standard (720p)</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        <span>Pas de clips longs</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        <span>Filigrane sur les vidéos</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Support par email</span>
+                    </div>
+                </div>
+                
+                <div class="plan-footer text-center">
+                    {% if current_user.plan == 'free' %}
+                        <button class="btn btn-outline-secondary" disabled>Plan actuel</button>
+                    {% else %}
+                        <form method="post" action="{{ url_for('subscription.upgrade_subscription') }}">
+                            <input type="hidden" name="plan" value="free">
+                            <button type="submit" class="btn btn-outline-primary">Choisir ce plan</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Plan Premium -->
+        <div class="col-md-4 mb-4">
+            <div class="plan-card h-100 {% if current_user.plan == 'premium' %}active{% endif %}">
+                <div class="plan-header text-center">
+                    <h3>Premium</h3>
+                    <div class="plan-price">9,99€</div>
+                    <div class="plan-period">par mois</div>
+                </div>
+                
+                <div class="plan-features">
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>20 clips par mois</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Clips courts et longs</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Haute qualité (1080p)</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Sans filigrane</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Transitions personnalisées</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Support prioritaire</span>
+                    </div>
+                </div>
+                
+                <div class="plan-footer text-center">
+                    {% if current_user.plan == 'premium' %}
+                        <button class="btn btn-outline-secondary" disabled>Plan actuel</button>
+                    {% else %}
+                        <a href="{{ url_for('payment.checkout', plan='premium') }}" class="btn btn-primary">Choisir ce plan</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Plan Pro -->
+        <div class="col-md-4 mb-4">
+            <div class="plan-card h-100 {% if current_user.plan == 'pro' %}active{% endif %}">
+                <div class="plan-header text-center">
+                    <h3>Pro</h3>
+                    <div class="plan-price">24,99€</div>
+                    <div class="plan-period">par mois</div>
+                </div>
+                
+                <div class="plan-features">
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Clips illimités</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Qualité maximale (4K)</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Clips courts et longs</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Sans filigrane</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Transitions personnalisées</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Ajout de logo personnalisé</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>API dédiée</span>
+                    </div>
+                    <div class="plan-feature">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>Support 24/7</span>
+                    </div>
+                </div>
+                
+                <div class="plan-footer text-center">
+                    {% if current_user.plan == 'pro' %}
+                        <button class="btn btn-outline-secondary" disabled>Plan actuel</button>
+                    {% else %}
+                        <a href="{{ url_for('payment.checkout', plan='pro') }}" class="btn btn-outline-primary">Choisir ce plan</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_user.plan != 'free' %}
+    <div class="mt-5">
+        <h3>Annuler mon abonnement</h3>
+        <p>Si vous annulez votre abonnement, vous pourrez continuer à utiliser votre plan actuel jusqu'à la fin de la période de facturation en cours. Ensuite, votre compte passera automatiquement au plan gratuit.</p>
+        
+        <form method="post" action="{{ url_for('subscription.cancel_subscription') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler votre abonnement ?');">
+            <button type="submit" class="btn btn-danger">Annuler mon abonnement</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <div class="mt-5">
+        <h3>Questions fréquentes</h3>
+        
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Puis-je changer de formule à tout moment ?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Oui, vous pouvez passer d'une formule à une autre à tout moment. Si vous passez à une formule supérieure, le changement est immédiat. Si vous passez à une formule inférieure, le changement prendra effet à la fin de votre période de facturation en cours.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Comment fonctionne la limite de clips par mois ?
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        La limite de clips est réinitialisée au début de chaque période de facturation. Les clips non utilisés ne sont pas reportés au mois suivant. Pour la formule Pro, il n'y a aucune limite sur le nombre de clips que vous pouvez générer.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Puis-je annuler mon abonnement à tout moment ?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Oui, vous pouvez annuler votre abonnement à tout moment. Votre abonnement restera actif jusqu'à la fin de la période de facturation en cours, puis passera automatiquement à la formule gratuite.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Quels moyens de paiement acceptez-vous ?
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Nous acceptons les cartes de crédit (Visa, Mastercard, American Express), PayPal, et les virements bancaires pour les abonnements annuels Pro.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Code JavaScript pour la page d'abonnement
+        // (animations, interactions, etc.)
+    });
+</script>
+{% endblock %}

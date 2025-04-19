@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Générateur de clips "Best Of"{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">Créez des clips "Best Of" en quelques clics</h1>
+        <p class="lead mb-4">Transformez vos vidéos YouTube préférées en clips courts et percutants, parfaits pour les réseaux sociaux.</p>
+        <a href="#generate-clip" class="btn btn-light btn-lg">Créer un clip maintenant</a>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Clips courts</h3>
+                <p class="card-text">Générez des clips de 30 à 60 secondes, parfaits pour TikTok, Instagram Reels ou YouTube Shorts.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Clips longs</h3>
+                <p class="card-text">Créez des résumés plus détaillés représentant 20% de la durée totale de la vidéo originale.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="card-title">Transitions fluides</h3>
+                <p class="card-text">Ajoutez des transitions professionnelles entre les segments pour un rendu plus agréable.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="generate-clip" class="form-container">
+    <h2 class="text-center mb-4">Générer un clip</h2>
+    
+    <div id="error-alert" class="alert alert-danger d-none" role="alert"></div>
+    
+    <form id="clip-form">
+        <div class="mb-3">
+            <label for="youtube-url" class="form-label">URL de la vidéo YouTube</label>
+            <input type="url" class="form-control" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label d-block">Type de clip</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clip-mode" id="mode-short" value="short" checked>
+                <label class="form-check-label" for="mode-short">Court (30-60s)</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="clip-mode" id="mode-long" value="long">
+                <label class="form-check-label" for="mode-long">Long (20% de la durée)</label>
+            </div>
+        </div>
+        
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="transitions" checked>
+            <label class="form-check-label" for="transitions">Ajouter des transitions</label>
+        </div>
+        
+        <div class="d-grid gap-2">
+            <button type="submit" id="form-submit-btn" class="btn btn-primary">Générer le clip</button>
+        </div>
+        
+        <div id="loading-indicator" class="text-center mt-3 d-none">
+            <div class="loading-spinner"></div>
+            <p class="mt-2">Génération du clip en cours...</p>
+        </div>
+    </form>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <h3>Comment ça marche ?</h3>
+        <ol>
+            <li>Collez l'URL de votre vidéo YouTube préférée</li>
+            <li>Choisissez le type de clip que vous souhaitez générer</li>
+            <li>Cliquez sur "Générer le clip"</li>
+            <li>Attendez quelques instants pendant que notre algorithme analyse la vidéo</li>
+            <li>Téléchargez votre clip et partagez-le sur vos réseaux sociaux</li>
+        </ol>
+    </div>
+    <div class="col-md-6">
+        <h3>Pourquoi utiliser notre générateur ?</h3>
+        <ul>
+            <li>Algorithme intelligent qui sélectionne les meilleurs moments</li>
+            <li>Traitement rapide et efficace</li>
+            <li>Interface simple et intuitive</li>
+            <li>Qualité vidéo optimale</li>
+            <li>Possibilité de personnaliser vos clips</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
